@@ -1,0 +1,39 @@
+---
+title: "Week12 lab genomics"
+author: "Diana Furlan"
+date: "2024-11-08"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+#Section1
+
+```{r}
+mxl <- read.csv("373531-SampleGenotypes-Homo_sapiens_Variation_Sample_rs8067378.csv")
+head(mxl)
+```
+
+
+```{r}
+table(mxl$Genotype..forward.strand.)
+```
+```{r}
+table(mxl$Genotype..forward.strand.)/nrow(mxl)*100
+```
+Different population GBR
+
+```{r}
+gbr <- read.csv("373517-SampleGenotypes-Homo_sapiens_Variation_Sample_rs8067378.csv")
+```
+
+Find proportion of G|G
+
+```{r}
+round(table(gbr$Genotype..forward.strand.)/nrow(gbr)*100,2)
+```
+
+
+This variant that is associated wit h childhood is more frequent in GBR population than MKL 
+
