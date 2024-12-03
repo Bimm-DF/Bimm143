@@ -1,0 +1,213 @@
+---
+title: "class07"
+author: "Diana"
+format: pdf
+---
+Today we are going to learn how to apply dif machine learning methods, Clustering:
+
+Goal: find groups/clusters in your input data.
+
+
+Make up some data with clear groups, for clustering. For this we use 'rnorm()' function
+
+
+```{r}
+tmp<- c(rnorm(30,-3),rnorm(30,3))
+x<- cbind(x=tmp, y=rev(tmp))
+plot (x)
+
+```
+```{r}
+km <- kmeans(x,centers =4)
+km
+```
+
+```{r}
+k<-kmeans(x, centers = 2, nstart = 20)
+k
+```
+>Q. How many points are in each cluster?
+
+```{r}
+k$size
+```
+>Q. How do we go to the cluster membership/assingment?
+
+```{r}
+k$cluster
+
+```
+>Q. What ‘component’ of your result object details
+ - cluster sixe?
+ - cluster assignment/membership?
+ - cluster center?
+
+```{r}
+k$centers
+```
+Plot x colored by the kmeans cluster assignment and add cluster centers as blue points
+ 
+```{r}
+plot(x, col =k$cluster)
+points (k$centers, col ="blue", pch=15)
+```
+ 
+ 
+```{r}
+rnorm(10)
+
+```
+```{r}
+hist( rnorm(30, mean=3))
+```
+```{r}
+n<-30
+x<-c(rnorm(n,-3), rnorm(n,+3))
+#to get the y axis we reverse x with 'x'
+y<-rev(x)
+hist(x)
+```
+R will re-cycle the shorter color vector  to be the same lenght as the longer (number of data points) in x
+>Plot x colored by the kmeans cluster assignment and
+ add cluster centers as blue points
+ 
+```{r}
+plot(x, col=c("red", "blue"))
+```
+```{r}
+plot(x, col=km$cluster)
+points(km$centers, col="blue",pch=15,cex=3)
+
+```
+>Q. can you run kmeans and ask for 4 clusters and plot the results like we have done above?
+
+```{r}
+km4 <- kmeans(x, centers = 4)
+plot(x, col=km4$cluster)
+points(km4$centers, col="blue",pch=15,cex=1.5)
+```
+##Hierarchical Cluster
+Let's take our made up data 'x' and see how hclust works.
+
+First we need a distance matrix of our data to be clustered
+```{r}
+d<-dist(x)
+hc<-hclust(d)
+hc
+```
+
+
+```{r}
+plot(hc)
+abline(h=8, col="red")
+
+```
+I can get my cluster membershop vector by "cutting the tree" with the 'cutree()' fucntion:
+
+```{r}
+
+grps <- cutree(hc, h=8)
+grps
+```
+
+Can yo upot 'x' colored by our hclust results:
+
+```{r}
+plot(x, col=grps)
+
+```
+
+## PCA of UK food data
+
+Read data from the UK on food consumption in dif pats of the UK
+
+>Q1. How many rows and columns are in your new data frame named x? 6 rows | 1-4 of 4 columns What R functions could you use to answer this questions?
+
+```{r}
+
+url <- "https://tinyurl.com/UK-foods"
+x <- read.csv(url, row.names = 1)
+head(x, )
+```
+>Q2. Which approach to solving the ‘row-names problem’ mentioned above do you prefer and why? Is one approach more robust than another under certain circumstances? 
+
+>Q3: Changing what optional argument in the above barplot() function results in the following plot? barside
+
+```{r}
+cols <- rainbow(nrow(x))
+barplot(as.matrix(x), col=cols)
+```
+```{r}
+#with 'beside=T'
+barplot(as.matrix(x), beside=T, col=rainbow(nrow(x)))
+```
+>Q5: Generating all pairwise plots may help somewhat. Can you make sense of the following code and resulting figure? What does it mean if a given point lies on the diagonal for a given plot?
+
+"Pairs" plot can be useful for small datasets like this one:
+
+```{r}
+pairs(x, col=rainbow(10), pch=16)
+```
+It is hard to see structure and trends in even this small dta-set. How will we ever do this when we have big datasets with bigger data.
+>Q6. What is the main differences between N. Ireland and the other countries of the UK in terms of this data-set? the plot is more scattered
+
+###PCA to the rescue (for bigger data)
+
+'prcomp()'this is the main function in base R to do PCA 
+
+```{r}
+
+pcs <- prcomp(t(x))
+#stats summary from dataset
+summary(pcs)
+```
+inside 'PCA' object that we created from running 'prcomp()'
+
+```{r}
+
+attributes(pcs)
+```
+```{r}
+pcs$x
+```
+>Q7. Complete the code below to generate a plot of PC1 vs PC2. The second line adds text labels over the data points.
+
+```{r}
+plot(pcs$x[,1], pcs$x[,2],  xlab="PC1", ylab="PC2", xlim=c(-270,500))
+text(pcs$x[,1], pcs$x[,2], colnames(x))
+```
+>8. Customize your plot so that the colors of the country names match the colors in our UK and Ireland map and table at start of this document.
+
+```{r}
+country_cols <-c("orange", "red", "blue", "green")
+plot(pcs$x[,1], pcs$x[,2], xlab="PC1", ylab="PC2",
+     col=c("black", "red", "darkgreen"), pch=16 )
+text(pcs$x[,1], pcs$x[,2], colnames(x), col=country_cols)
+
+```
+##Digging deeper
+
+```{r}
+v <- round( pcs$sdev^2/sum(pcs$sdev^2) * 100 )
+v
+
+```
+
+```{r}
+x <- summary(pcs)
+x$importance
+```
+
+
+
+```{r}
+barplot(v, xlab="Principal Component", ylab="Percent Variation")
+```
+
+
+```{r}
+
+par(mar=c(10, 3, 0.35, 0))
+barplot( pcs$rotation[,1], las=2 )
+```
+
