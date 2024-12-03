@@ -1,0 +1,216 @@
+---
+title: "lab14"
+author: "Diana Furlan"
+format: pdf
+---
+
+##Data import
+```{r}
+library(DESeq2)
+```
+
+```{r}
+metaFile <- "GSE37704_metadata.csv"
+countFile <- "GSE37704_featurecounts.csv"
+
+colData = read.csv(metaFile, row.names=1)
+countData = read.csv(countFile, row.names=1)
+
+head(countData)
+head(colData)
+```
+ to remove the troublesome first column from countData 
+```{r}
+countData <- as.matrix(countData[,2:length(colnames(countData))]) 
+head(countData)
+```
+
+to filter countData to exclude genes (i.e. rows) where we have 0 read count across all samples (i.e. columns).
+
+
+```{r}
+countData <- countData[rowSums(countData) > 0,]
+head(countData)
+```
+ 
+##DESeq Analysis
+
+
+
+```{r}
+#| message: false
+library(DESeq2)
+```
+
+
+```{r}
+dds <- DESeqDataSetFromMatrix(countData = countData, colData = colData, design =~ condition)
+dds = DESeq(dds)
+dds
+```
+##Result visualization
+
+```{r}
+
+res = results(dds, contrast = c("condition", "hoxa1_kd", "control_sirna"))
+summary(res)
+```
+Volcano Plot
+
+```{r}
+plot( res$log2FoldChange, -log(res$padj) )
+```
+
+
+adding colors 
+```{r}
+# color vector for all genes
+mycols <- rep("gray", nrow(res) )
+
+mycols[ abs(res$log2FoldChange) > 2 ] <- "red"
+
+#blue adjusted p-value < 0.01 and absolute fold change more than 2
+
+inds <- (res$padj<0.01) & (abs(res$log2FoldChange) > 2 )
+mycols[ inds ] <- "blue"
+
+plot( res$log2FoldChange, -log(res$padj), col=mycols, xlab="Log2(FoldChange)", ylab="-Log(P-value)" )
+```
+
+
+##Add Annotation
+
+```{r}
+library("AnnotationDbi")
+library("org.Hs.eg.db")
+columns(org.Hs.eg.db)
+```
+
+```{r}
+res$symbol = mapIds(org.Hs.eg.db,
+                    keys= rownames(res), 
+                    keytype="ENSEMBL",
+                    column="SYMBOL",
+                    multiVals="first")
+
+res$entrez = mapIds(org.Hs.eg.db,
+                    keys = rownames(res),
+                    keytype ="ENSEMBL",
+                    column="ENTREZID",
+                    multiVals="first")
+
+res$name =   mapIds(org.Hs.eg.db,
+                    keys=row.names(res),
+                    keytype="ENSEMBL",
+                    column="ENTREZID",
+                    multiVals="first")
+
+head(res, 10)
+```
+
+#reorder these results by adjusted p-value and save them to a CSV file in your current project directory.
+
+```{r}
+res = res[order(res$pvalue),]
+write.csv(res, file ="deseq_results.csv")
+```
+
+
+##Pathway Analysis
+
+```{r}
+library(pathview)
+library(gage)
+library(gageData)
+
+data(kegg.sets.hs)
+data(sigmet.idx.hs)
+```
+
+```{r}
+
+kegg.sets.hs = kegg.sets.hs[sigmet.idx.hs]
+head(kegg.sets.hs, 3)
+```
+
+```{r}
+foldchanges = res$log2FoldChange
+names(foldchanges) = res$entrez
+head(foldchanges)
+```
+```{r}
+keggres = gage(foldchanges, gsets=kegg.sets.hs)
+```
+
+
+less=down patways
+```{r}
+head(keggres$less)
+```
+
+```{r}
+pathview(gene.data=foldchanges, pathway.id="hsa04110")
+```
+```{r}
+pathview(gene.data=foldchanges, pathway.id="hsa04110", kegg.native=FALSE)
+```
+
+
+```{r}
+keggrespathways <- rownames(keggres$greater)[1:5]
+# Extract the 8 character long IDs part of each string
+keggresids = substr(keggrespathways, start=1, stop=8)
+keggresids
+```
+ to draw plots for all the top 5 pathways.
+```{r}
+pathview(gene.data=foldchanges, pathway.id = keggresids, species="hsa")
+
+```
+
+![top five pathways with my DEGs](hsa04110.pathview.png)
+![2](hsa04630.pathview.png)
+![3](hsa04640.pathview.png)
+![4](hsa00140.pathview.png)
+
+![5](hsa04330.pathview.png)
+
+
+
+
+ 5 down-reguled pathway
+```{r}
+keggresspathways <- rownames(keggres$less)[1:5]
+# Extract the 8 character long IDs part of each string
+keggresid = substr(keggresspathways, start=1, stop=8)
+keggresid
+```
+
+##Save Results
+```{r}
+write.csv(res, file="Lab14_annotated.csv")
+```
+
+
+##Section 3. Gene Oncology
+```{r}
+data(go.sets.hs)
+data(go.subs.hs)
+
+gobpsets = go.sets.hs[go.subs.hs$BP]
+
+gobpres = gage(foldchanges, gsets=gobpsets, same.dir=TRUE)
+
+lapply(gobpres, head)
+```
+
+##Reactome Analysis
+
+```{r}
+sig_genes <- res[res$padj <= 0.05 & !is.na(res$padj), "symbol"]
+print(paste("Total number of significant genes:", length(sig_genes)))
+write.table(sig_genes, file="significant_genes.txt", row.names=FALSE, col.names=FALSE, quote=FALSE)
+```
+
+
+
