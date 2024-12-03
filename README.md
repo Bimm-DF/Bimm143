@@ -4,7 +4,7 @@ Classwork for [BIMM143](https://bioboot.github.io/bimm143_F24/schedule/#19) at U
 - Class 5 [Data exploration and visualization in R]()  
 - Class 6 [writing your own R functions](https://github.com/Bimm-DF/Bimm143/blob/main/lab6/lab6.qmd)
 - Class 7 [Introduction to machine learning](https://github.com/Bimm-DF/Bimm143/blob/main/lab7/lab7.qmd)  
-- Class 8 [mini-project]  
+- Class 8 [mini-project](https://github.com/Bimm-DF/Bimm143/blob/main/Class8/Class8.qmd)  
 - Class 9 [Structural Bioinformatics]
 - Class 10 [Halloween Candy Mini-Project]
 - Class 11 [ AlphaFold]
