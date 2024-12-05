@@ -2,7 +2,7 @@
 title: "lab6 R functions"
 author: "Diana Furlan"
 date: "2024-10-21"
-output: pdf_document
+output: "gfm"
 ---
 
 This week we are introductin **R functions** and how to write our own functions

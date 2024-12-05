@@ -8,6 +8,6 @@ Classwork for [BIMM143](https://bioboot.github.io/bimm143_F24/schedule/#19) at U
 - Class 9 [Structural Bioinformatics](https://github.com/Bimm-DF/Bimm143/tree/main/Class9)
 - Class 10 [Halloween Candy Mini-Project](https://github.com/Bimm-DF/Bimm143/tree/main/Class%2010)
 - Class 11 [ AlphaFold](https://github.com/Bimm-DF/Bimm143/tree/main/class11)
-- Class 12 [Genome informatics]
-- Class 13 [Transcriptomics, RNA-Seq analysis]
-- Class 14 [RNA-Seq mini project ]
+- Class 12 [Genome informatics](https://github.com/Bimm-DF/Bimm143/tree/main/Class12)
+- Class 13 [Transcriptomics, RNA-Seq analysis](https://github.com/Bimm-DF/Bimm143/tree/main/Class13)
+- Class 14 [RNA-Seq mini project ](https://github.com/Bimm-DF/Bimm143/tree/main/class14)
